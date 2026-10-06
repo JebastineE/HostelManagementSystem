@@ -1,0 +1,39 @@
+<!-- Floating Notification Toast Alerts -->
+<app-toast></app-toast>
+
+<!-- Mobile Sidebar Backdrop Overlay -->
+<div
+  class="mobile-backdrop"
+  *ngIf="isSidebarOpen"
+  (click)="closeSidebar()"
+></div>
+
+<div class="app-layout">
+  <!-- Left Navigation Sidebar -->
+  <app-sidebar [isOpen]="isSidebarOpen" (close)="closeSidebar()"></app-sidebar>
+
+  <!-- Right Main App Area -->
+  <div class="main-wrapper">
+    <!-- Top System Header -->
+    <app-header (toggleSidebar)="toggleSidebar()"></app-header>
+
+    <!-- Routed Page View Content -->
+    <main class="page-viewport">
+      <router-outlet></router-outlet>
+    </main>
+
+    <!-- Modern App Footer -->
+    <footer class="app-footer">
+      <div class="footer-content">
+        <div>
+          <strong>HostelFlow</strong> &bull; Hostel Management System &bull; Spring Boot + Angular
+        </div>
+        <div class="footer-links">
+          <span>Database: PostgreSQL 18</span>
+          <span class="dot">&bull;</span>
+          <span>API: http://localhost:8081</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
