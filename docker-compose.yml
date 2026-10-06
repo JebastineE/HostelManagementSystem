@@ -1,0 +1,72 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: hostel-mysql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: JebasTine@2006
+      MYSQL_DATABASE: hostel_management_db
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pJebasTine@2006"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+    volumes:
+      - hostel-mysql-data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+    networks:
+      - hostel-network
+
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: hostel-backend
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/hostel_management_db?serverTimezone=Asia/Kolkata
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: JebasTine@2006
+
+    ports:
+      - "8085:8081"
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    networks:
+      - hostel-network
+
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+    container_name: hostel-frontend
+
+    ports:
+      - "8090:80"
+
+    depends_on:
+      backend:
+        condition: service_started
+
+    networks:
+      - hostel-network
+
+
+volumes:
+  hostel-mysql-data:
+
+
+networks:
+  hostel-network:
