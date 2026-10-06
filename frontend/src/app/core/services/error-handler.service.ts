@@ -15,7 +15,7 @@ export class ErrorHandlerService {
 
     if (error instanceof HttpErrorResponse) {
       if (error.status === 0) {
-        return 'Backend server is unavailable. Please ensure the Spring Boot backend is running on http://localhost:8081.';
+        return 'Backend server is unavailable. Please ensure the Spring Boot backend is running on http://localhost:8085.';
       }
 
       const rawMsg: string = typeof error.error === 'string'

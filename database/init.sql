@@ -155,6 +155,32 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `trg_update_room_occupancy_update` AFTER UPDATE ON `allocations` FOR EACH ROW BEGIN
+    IF OLD.room_id <> NEW.room_id THEN
+        UPDATE rooms SET occupancy = occupancy - 1 WHERE room_id = OLD.room_id;
+        UPDATE rooms SET occupancy = occupancy + 1 WHERE room_id = NEW.room_id;
+    END IF;
+END */;;
+DELIMITER ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `trg_audit_allocations_update` AFTER UPDATE ON `allocations` FOR EACH ROW BEGIN
+    INSERT INTO audit_log (
+        action,
+        table_name,
+        record_id,
+        old_value,
+        new_value
+    )
+    VALUES (
+        'UPDATE',
+        'allocations',
+        NEW.allocation_id,
+        CONCAT('Student ID=', OLD.student_id, ', Room ID=', OLD.room_id, ', Duration=', OLD.duration_months),
+        CONCAT('Student ID=', NEW.student_id, ', Room ID=', NEW.room_id, ', Duration=', NEW.duration_months)
+    );
+END */;;
+DELIMITER ;
 
 --
 -- Table structure for table `audit_log`
@@ -289,6 +315,42 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `trg_audit_rooms_insert` AFTER INSERT ON `rooms` FOR EACH ROW BEGIN
+    INSERT INTO audit_log (
+        action,
+        table_name,
+        record_id,
+        old_value,
+        new_value
+    )
+    VALUES (
+        'INSERT',
+        'rooms',
+        NEW.room_id,
+        NULL,
+        CONCAT('Number=', NEW.room_number, ', Capacity=', NEW.capacity, ', Hostel ID=', NEW.hostel_id)
+    );
+END */;;
+DELIMITER ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `trg_audit_rooms_delete` AFTER DELETE ON `rooms` FOR EACH ROW BEGIN
+    INSERT INTO audit_log (
+        action,
+        table_name,
+        record_id,
+        old_value,
+        new_value
+    )
+    VALUES (
+        'DELETE',
+        'rooms',
+        OLD.room_id,
+        CONCAT('Number=', OLD.room_number, ', Capacity=', OLD.capacity, ', Hostel ID=', OLD.hostel_id),
+        NULL
+    );
+END */;;
+DELIMITER ;
 
 --
 -- Table structure for table `students`
@@ -326,6 +388,61 @@ INSERT INTO `students` VALUES (8,'Vishnu','vishnu@gmail.com','9876543217','Infor
 /*!40000 ALTER TABLE `students` ENABLE KEYS */;
 UNLOCK TABLES;
 
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `trg_audit_students_insert` AFTER INSERT ON `students` FOR EACH ROW BEGIN
+    INSERT INTO audit_log (
+        action,
+        table_name,
+        record_id,
+        old_value,
+        new_value
+    )
+    VALUES (
+        'INSERT',
+        'students',
+        NEW.student_id,
+        NULL,
+        CONCAT('Name=', NEW.name, ', Course=', NEW.course, ', Year=', NEW.year)
+    );
+END */;;
+DELIMITER ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `trg_audit_students_update` AFTER UPDATE ON `students` FOR EACH ROW BEGIN
+    INSERT INTO audit_log (
+        action,
+        table_name,
+        record_id,
+        old_value,
+        new_value
+    )
+    VALUES (
+        'UPDATE',
+        'students',
+        NEW.student_id,
+        CONCAT('Name=', OLD.name, ', Course=', OLD.course, ', Year=', OLD.year),
+        CONCAT('Name=', NEW.name, ', Course=', NEW.course, ', Year=', NEW.year)
+    );
+END */;;
+DELIMITER ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `trg_audit_students_delete` AFTER DELETE ON `students` FOR EACH ROW BEGIN
+    INSERT INTO audit_log (
+        action,
+        table_name,
+        record_id,
+        old_value,
+        new_value
+    )
+    VALUES (
+        'DELETE',
+        'students',
+        OLD.student_id,
+        CONCAT('Name=', OLD.name, ', Course=', OLD.course, ', Year=', OLD.year),
+        NULL
+    );
+END */;;
+DELIMITER ;
+
 --
 -- Dumping routines for database 'hostel_management_db'
 --
@@ -346,6 +463,11 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `calculate_hostel_fee`(
     DETERMINISTIC
 BEGIN
     DECLARE v_monthly_fee DECIMAL(10,2);
+
+    IF p_duration_months IS NULL OR p_duration_months < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Duration months cannot be negative';
+    END IF;
 
     SELECT monthly_fee
     INTO v_monthly_fee
@@ -421,7 +543,7 @@ BEGIN
                 SIGNAL SQLSTATE '45000'
                 SET MESSAGE_TEXT = 'Student is already allocated to a room';
 
-            ELSEIF p_duration_months <= 0 THEN
+            ELSEIF p_duration_months IS NULL OR p_duration_months <= 0 THEN
                 SIGNAL SQLSTATE '45000'
                 SET MESSAGE_TEXT = 'Duration must be greater than 0 months';
 

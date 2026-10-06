@@ -1,6 +1,7 @@
 package com.wipro.hostel.service;
 
 import com.wipro.hostel.entity.AuditLog;
+import com.wipro.hostel.exception.ResourceNotFoundException;
 import com.wipro.hostel.repository.AuditLogRepository;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class AuditService {
 
     public AuditLog getAuditLogById(Long auditId) {
         return auditLogRepository.findById(auditId)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Audit log with ID " + auditId + " not found"
                 ));
     }

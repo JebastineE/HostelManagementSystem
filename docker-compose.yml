@@ -5,11 +5,11 @@ services:
     container_name: hostel-mysql
 
     environment:
-      MYSQL_ROOT_PASSWORD: JebasTine@2006
+      MYSQL_ROOT_PASSWORD: Hostel@12345
       MYSQL_DATABASE: hostel_management_db
 
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pJebasTine@2006"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pHostel@12345"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -33,7 +33,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/hostel_management_db?serverTimezone=Asia/Kolkata
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: JebasTine@2006
+      SPRING_DATASOURCE_PASSWORD: Hostel@12345
 
     ports:
       - "8085:8081"

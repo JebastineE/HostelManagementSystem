@@ -4,6 +4,7 @@ import com.wipro.hostel.entity.Allocation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,8 +39,8 @@ public interface AllocationRepository extends JpaRepository<Allocation, Integer>
     @Transactional
     @Query(value = "CALL allocate_room(:studentId, :roomId, :durationMonths)", nativeQuery = true)
     void allocateRoom(
-            Integer studentId,
-            Integer roomId,
-            Integer durationMonths
+            @Param("studentId") Integer studentId,
+            @Param("roomId") Integer roomId,
+            @Param("durationMonths") Integer durationMonths
     );
 }

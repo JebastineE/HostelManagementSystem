@@ -1,6 +1,7 @@
 package com.wipro.hostel.service;
 
 import com.wipro.hostel.entity.Allocation;
+import com.wipro.hostel.exception.ResourceNotFoundException;
 import com.wipro.hostel.repository.AllocationRepository;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class AllocationService {
 
     public Allocation getAllocationById(Integer allocationId) {
         return allocationRepository.findById(allocationId)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Allocation with ID " + allocationId + " not found"
                 ));
     }

@@ -60,7 +60,7 @@ import { RouterModule } from '@angular/router';
           <span class="status-dot"></span>
           <div class="server-info">
             <span class="server-name">Spring Boot API</span>
-            <span class="server-port">Port: 8081</span>
+            <span class="server-port">Port: 8085</span>
           </div>
         </div>
       </div>

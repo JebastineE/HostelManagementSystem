@@ -1,6 +1,7 @@
 package com.wipro.hostel.service;
 
 import com.wipro.hostel.entity.Student;
+import com.wipro.hostel.exception.ResourceNotFoundException;
 import com.wipro.hostel.repository.StudentRepository;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class StudentService {
 
     public Student getStudentById(Integer studentId) {
         return studentRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Student with ID " + studentId + " not found"
                 ));
     }

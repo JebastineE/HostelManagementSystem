@@ -1,6 +1,7 @@
 package com.wipro.hostel.service;
 
 import com.wipro.hostel.entity.Room;
+import com.wipro.hostel.exception.ResourceNotFoundException;
 import com.wipro.hostel.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class RoomService {
 
     public Room getRoomById(Integer roomId) {
         return roomRepository.findById(roomId)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Room with ID " + roomId + " not found"
                 ));
     }
